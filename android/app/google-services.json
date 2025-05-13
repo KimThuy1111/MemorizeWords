@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "958419395905",
+    "project_id": "memorizewords-631ee",
+    "storage_bucket": "memorizewords-631ee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958419395905:android:4c1d8deea1545d60bc6dc0",
+        "android_client_info": {
+          "package_name": "com.example.memorize_word"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsMtM5agnOjrWVxh7Et4SXTp-4e9oqfEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -10,58 +10,151 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vocabulary Learning App'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.blue.shade400,
+              Colors.purple.shade400,
+            ],
+          ),
       ),
-      body: Center(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+                const SizedBox(height: 20),
+                const Text(
+                  'Xin chào!',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
             const Text(
-              'Chào mừng đến với ứng dụng học từ vựng',
-              style: TextStyle(fontSize: 20),
-              textAlign: TextAlign.center,
+                  'Hãy bắt đầu học từ vựng ngay hôm nay',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
             ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
+                const SizedBox(height: 40),
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
+                    children: [
+                      _buildFeatureCard(
+                        context,
+                        'Học từ vựng',
+                        Icons.school,
+                        Colors.orange,
+                        () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => VocabularySetScreen(
                       userId: 'user123',
-
                     ),
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              ),
-              child: const Text(
-                'Học từ vựng',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        'Kiểm tra',
+                        Icons.quiz,
+                        Colors.green,
+                        () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => QuizScreen(userId: 'user123',),
+                              builder: (context) => QuizScreen(userId: 'user123'),
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        'Từ đã nhớ',
+                        Icons.check_circle,
+                        Colors.blue,
+                        () {
+                          // TODO: Implement remembered words screen
+                        },
+                      ),
+                      _buildFeatureCard(
+                        context,
+                        'Thống kê',
+                        Icons.bar_chart,
+                        Colors.purple,
+                        () {
+                          // TODO: Implement statistics screen
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.7),
+                color,
+              ],
+            ),
               ),
-              child: const Text(
-                'Kiểm tra từ vựng',
-                style: TextStyle(fontSize: 18),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 40,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
               ),
             ),
           ],
+          ),
         ),
       ),
     );

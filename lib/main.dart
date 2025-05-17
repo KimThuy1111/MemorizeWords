@@ -27,11 +27,9 @@ class MyApp extends StatelessWidget {
 
 class VocabularySetScreen extends StatelessWidget {
   final String userId;
-  final FlashcardController controller = FlashcardController();  // Khởi tạo controller
+  final FlashcardController controller = FlashcardController();
 
   VocabularySetScreen({super.key, required this.userId});
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -43,59 +41,95 @@ class VocabularySetScreen extends StatelessWidget {
     ];
 
     return Scaffold(
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text(
           'Chọn bộ từ vựng',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
-        backgroundColor: Colors.teal,
-        elevation: 5,
+        iconTheme: const IconThemeData(color: Colors.black87),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => controller.addNewVocabularySet(userId),  // Mở hộp thoại thêm bộ từ vựng
+            icon: const Icon(Icons.add, color: Colors.black87),
+            onPressed: () => controller.addNewVocabularySet(userId),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: sets.length,
-          itemBuilder: (context, index) {
-            final set = sets[index];
-
-            return Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                leading: Icon(
-                    set['icon'] as IconData, color: set['color'] as Color,
-                    size: 32),
-                title: Text(
-                  set['name'] as String,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                trailing: const Icon(
-                    Icons.arrow_forward_ios, color: Colors.grey),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FlashcardScreen(
-                        userId: userId,
-                        setName: set['name'] as String,
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.blue.shade100,
+                Colors.white,
+              ],
+            ),
+          ),
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+            itemCount: sets.length,
+            itemBuilder: (context, index) {
+              final set = sets[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Material(
+                  elevation: 8,
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FlashcardScreen(
+                            userId: userId,
+                            setName: set['name'] as String,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: (set['color'] as Color).withOpacity(0.15),
+                            radius: 28,
+                            child: Icon(
+                              set['icon'] as IconData,
+                              color: set['color'] as Color,
+                              size: 32,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Text(
+                              set['name'] as String,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, color: Colors.grey, size: 28),
+                        ],
                       ),
                     ),
-                  );
-                },
-              ),
-            );
-          },
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

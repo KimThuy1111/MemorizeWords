@@ -88,10 +88,14 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          ),
+        ),
       );
     }
-    final word = _controller.currentWord; // Lấy từ hiện tại
+    final word = _controller.currentWord;
     if (word == null) {
       // Hiển thị AlertDialog một lần duy nhất
       Future.delayed(Duration.zero, () async {
@@ -131,100 +135,154 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Bộ từ: ${widget.setName}')), // Tiêu đề
-      body: Center(
-        child: GestureDetector(
-          onTap: _flipCard, // Khi nhấn vào thẻ thì thực hiện lật
-          child: AnimatedBuilder(
-            animation: _animation,
-            builder: (context, child) {
-              final angle = _animation.value;
-              final isUnder = angle >
-                  pi / 2; // Nếu góc > 90° thì đang là mặt sau
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.blue.shade100,
+              Colors.white,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Text(
+                      widget.setName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.info_outline),
+                      onPressed: () {
+                        // TODO: Show progress info
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: GestureDetector(
+                    onTap: _flipCard,
+                    child: AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) {
+                        final angle = _animation.value;
+                        final isUnder = angle > pi / 2;
 
-              return Transform(
-                transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.001) // Tạo hiệu ứng 3D mượt
-                  ..rotateY(angle), // Xoay theo trục Y
-                alignment: Alignment.center,
-                child: isUnder
-                    ? Transform(
-                  transform: Matrix4.rotationY(pi), // Lật lại chữ để đọc được
-                  alignment: Alignment.center,
-                  child: _buildMeaningSide(word), // Mặt sau (nghĩa)
-                )
-                    : _buildWordSide(word), // Mặt trước (từ)
-              );
-            },
+                        return Transform(
+                          transform: Matrix4.identity()
+                            ..setEntry(3, 2, 0.001)
+                            ..rotateY(angle),
+                          alignment: Alignment.center,
+                          child: isUnder
+                              ? Transform(
+                                  transform: Matrix4.rotationY(pi),
+                                  alignment: Alignment.center,
+                                  child: _buildMeaningSide(word),
+                                )
+                              : _buildWordSide(word),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildActionButton(
+                      'Cần ôn lại',
+                      Icons.refresh,
+                      Colors.orange,
+                      () => _handleAnswer('review'),
+                    ),
+                    _buildActionButton(
+                      'Đã nhớ',
+                      Icons.check_circle,
+                      Colors.green,
+                      () => _handleAnswer('remembered'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  // Widget hiển thị mặt trước (từ vựng)
-  Widget _buildWordSide(Vocabulary word) {
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.teal,
-      child: Container(
-        width: 300,
-        height: 400,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Hiển thị ảnh nếu có
-            if (word.imageUrl != null && word.imageUrl!.isNotEmpty) Container(
-              height: 150,
-              margin: const EdgeInsets.only(bottom: 16),
-              child: ClipRRect(borderRadius: BorderRadius.circular(12),
-                child: Image.network(word.imageUrl!, fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[300], child: const Center(child: Icon(
-                        Icons.broken_image, size: 48, color: Colors.grey),),);
-                  },),),),
-            // Hiển thị từ
-            Text(
-              word.word,
-              style: const TextStyle(fontSize: 32,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
+  Widget _buildActionButton(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
     );
   }
 
-  Widget _buildMeaningSide(Vocabulary word) {
+  Widget _buildWordSide(Vocabulary word) {
     return Card(
       elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.teal.shade600, // đậm hơn cho rõ nét hơn
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
-        width: 300,
-        height: 400,
-        padding: const EdgeInsets.all(16),
+        width: 320,
+        height: 450,
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Hiển thị ảnh nếu có
             if (word.imageUrl != null && word.imageUrl!.isNotEmpty)
               Container(
-                height: 150,
-                margin: const EdgeInsets.only(bottom: 16),
+                height: 200,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(15),
                   child: Image.network(
                     word.imageUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: Colors.grey[300],
+                        color: Colors.grey[200],
                         child: const Center(
                           child: Icon(
                             Icons.broken_image,
@@ -237,31 +295,93 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
                   ),
                 ),
               ),
-
-            // Hiển thị nghĩa của từ
+            const SizedBox(height: 20),
             Text(
-              word.meaning,
+              word.word,
               style: const TextStyle(
-                fontSize: 24,
-                color: Colors.white,
+                fontSize: 36,
                 fontWeight: FontWeight.bold,
+                color: Colors.black87,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _handleAnswer('remembered'),
-                  child: const Text('Đã nhớ'),
+            const SizedBox(height: 10),
+            const Text(
+              'Nhấn để xem nghĩa',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMeaningSide(Vocabulary word) {
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        width: 320,
+        height: 450,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (word.imageUrl != null && word.imageUrl!.isNotEmpty)
+              Container(
+                height: 200,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () => _handleAnswer('review'),
-                  child: const Text('Cần ôn lại'),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    word.imageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ],
-            )
+              ),
+            const SizedBox(height: 20),
+            Text(
+              word.meaning,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Nhấn để xem từ',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
           ],
         ),
       ),

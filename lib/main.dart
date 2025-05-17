@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:memorize_word/screens/HomeScreen.dart';
 import 'screens/flashcardScreen.dart';
 import '../controllers/flashcardController.dart';  // Thêm import controller
 
@@ -13,9 +14,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flashcard App',
-      theme: ThemeData(primarySwatch: Colors.teal),
-      home: VocabularySetScreen(userId: 'user123'),
+      title: 'Vocabulary Learning App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

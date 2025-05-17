@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import '../models/vocabulary.dart';
 
 class VocabularyService {
@@ -77,4 +79,36 @@ class VocabularyService {
 
     await wordRef.update({'status': status});
   }
+
+  Future<List<Vocabulary>> getAllRememberedWords(String userId) async {
+    try {
+      // Sử dụng collectionGroup với index đã tạo
+      final query = await _firestore
+          .collectionGroup('words')
+          .where('status', isEqualTo: 'remembered')
+          .get();
+
+      return query.docs.map((doc) => Vocabulary(
+        id: doc.id,
+        word: doc['word'],
+        meaning: doc['meaning'],
+        imageUrl: doc['imageUrl'],
+        status: doc['status'],
+      )).toList();
+    } catch (e) {
+      print('Lỗi collectionGroup: $e');
+      return [];
+    }
+  }
+  // Lưu kết quả kiểm tra
+  Future<void> saveQuizResult(
+      String userId, int correctAnswers, int totalQuestions) async {
+    await _firestore.collection('users').doc(userId).collection('quizz').add({
+      'correctAnswers': correctAnswers,
+      'totalQuestions': totalQuestions,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+
 }

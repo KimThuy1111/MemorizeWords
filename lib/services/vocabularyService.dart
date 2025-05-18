@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import '../models/vocabulary.dart';
 
 class VocabularyService {
@@ -39,7 +37,8 @@ class VocabularyService {
           'word': vocabulary.word,
           'meaning': vocabulary.meaning,
           'imageUrl': vocabulary.imageUrl,
-          'status': vocabulary.status,  // Thêm status vào Firestore
+          'status': vocabulary.status,
+          'lastStudied': FieldValue.serverTimestamp(),
         });
       }
     }
@@ -61,7 +60,7 @@ class VocabularyService {
         word: doc['word'],
         meaning: doc['meaning'],
         imageUrl: doc['imageUrl'],
-        status: doc['status'] ?? 'review',  // Lấy status từ Firestore, mặc định là 'review'
+        status: doc['status'] ?? 'review',
       );
     }).toList();
   }
@@ -77,7 +76,10 @@ class VocabularyService {
         .collection('words')
         .doc(wordId);
 
-    await wordRef.update({'status': status});
+    await wordRef.update({
+      'status': status,
+      'lastStudied': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<List<Vocabulary>> getAllRememberedWords(String userId) async {
@@ -100,6 +102,7 @@ class VocabularyService {
       return [];
     }
   }
+
   // Lưu kết quả kiểm tra
   Future<void> saveQuizResult(
       String userId, int correctAnswers, int totalQuestions) async {
@@ -109,6 +112,4 @@ class VocabularyService {
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
-
-
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import 'QuizzScreen.dart';
-import 'flashcardScreen.dart';
+import 'StatisticsScreen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -95,7 +95,12 @@ class HomeScreen extends StatelessWidget {
                         Icons.bar_chart,
                         Colors.purple,
                         () {
-                          // TODO: Implement statistics screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const StatisticsScreen(),
+                            ),
+                          );
                         },
                       ),
                     ],

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:memorize_word/screens/HomeScreen.dart';
+import 'package:memorize_word/services/statisticsService.dart';
 import 'screens/flashcardScreen.dart';
 import '../controllers/flashcardController.dart';  // Thêm import controller
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // <-- Quan trọng!
+  await Firebase.initializeApp();
+  await StatisticsService().debugPrintAllWordsCollectionGroup();
   runApp(MyApp());
 }
 

@@ -24,6 +24,7 @@ class _QuizScreenState extends State<QuizScreen> {
   late List<String> currentOptions;
   final VocabularyService _vocabularyService = VocabularyService();
 
+  //3.3 Khởi tạo hàm _loadQuestions()
   @override
   void initState() {
     super.initState();
@@ -33,46 +34,47 @@ class _QuizScreenState extends State<QuizScreen> {
   Future<void> _loadQuestions() async {
     final rememberedWords = await _vocabularyService.getAllRememberedWords(widget.userId);
     setState(() {
+      //3.4 Tạo danh sách các câu hỏi
       questions = rememberedWords..shuffle();
+      // Giới hạn tối đa 5 câu hỏi
+      if (questions.length > 5) {
+        questions = questions.sublist(0, 5);
+      }
       _isLoading = false;
       if (questions.isNotEmpty) {
         setOptionsForCurrentQuestion();
       }
     });
   }
-
+  //3.6 Tạo đáp án để người dùng lựa chọn
   void setOptionsForCurrentQuestion() {
     final question = questions[currentQuestionIndex];
     final options = [question.meaning];
-
     // Lấy các đáp án sai từ các từ khác trong danh sách
     final otherMeanings = questions
         .where((q) => q.meaning != question.meaning)
         .map((q) => q.meaning)
         .toList();
-
     // Thêm 3 đáp án sai (hoặc ít hơn nếu không đủ)
-    options.addAll(otherMeanings.take(3));
+    options.addAll(otherMeanings.take(2));
     options.shuffle();
     currentOptions = options;
   }
-
+  //3.8 Kiểm tra đáp án
   void checkAnswer(String answer) async {
     if (isAnswered) return;
-
     final isCorrect = answer == questions[currentQuestionIndex].meaning;
-
+    
     setState(() {
       selectedAnswer = answer;
       isAnswered = true;
+      //3.9 Hiển thị đáp án
       showAnswer = true;
       if (isCorrect) {
         score++;
-      }else{
-
       }
     });
-
+    //3.10 Chuyển tiếp câu hỏi sau 2s
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         if (currentQuestionIndex < questions.length - 1) {
@@ -84,7 +86,7 @@ class _QuizScreenState extends State<QuizScreen> {
             setOptionsForCurrentQuestion();
           });
         } else {
-          // Lưu kết quả khi hoàn thành bài kiểm tra
+          // Gọi hàm saveQuizResult để lưu kết quả khi hoàn thành bài kiểm tra
           _vocabularyService.saveQuizResult(
               widget.userId,
               score,
@@ -95,7 +97,7 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     });
   }
-
+  // 3.10 Hiển thị kết quả
   void _showResultDialog() {
     showDialog(
       context: context,
@@ -127,7 +129,7 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       );
     }
-
+    // Nếu chưa học từ nào sẽ gửi thông báo cho người dùng
     if (questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Kiểm tra từ vựng')),

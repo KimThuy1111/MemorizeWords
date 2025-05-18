@@ -45,7 +45,7 @@ class VocabularyService {
     }
   }
 
-  // Lấy bộ từ vựng từ Firestore
+  // Duyệt qua các bộ từ vựng và thêm vào Firestore
   Future<List<Vocabulary>> getVocabularySet(String userId, String setName) async {
     final vocabularySetRef = _firestore
         .collection('users')
@@ -79,7 +79,7 @@ class VocabularyService {
 
     await wordRef.update({'status': status});
   }
-
+  //3.5 Lấy danh sách các từ có status='remembered' từ database
   Future<List<Vocabulary>> getAllRememberedWords(String userId) async {
     try {
       // Sử dụng collectionGroup với index đã tạo
@@ -100,7 +100,7 @@ class VocabularyService {
       return [];
     }
   }
-  // Lưu kết quả kiểm tra
+  // 3.11 Lưu kết quả kiểm tra vào database
   Future<void> saveQuizResult(
       String userId, int correctAnswers, int totalQuestions) async {
     await _firestore.collection('users').doc(userId).collection('quizz').add({

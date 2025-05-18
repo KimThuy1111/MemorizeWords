@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../main.dart';
-import 'QuizzScreen.dart';
+
+import 'QuizScreen.dart';
+import 'flashcardScreen.dart';
+
 import 'StatisticsScreen.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,13 +24,13 @@ class HomeScreen extends StatelessWidget {
               Colors.purple.shade400,
             ],
           ),
-      ),
+        ),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-        child: Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+              children: [
                 const SizedBox(height: 20),
                 const Text(
                   'Xin chào!',
@@ -36,13 +40,13 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-            const Text(
+                const Text(
                   'Hãy bắt đầu học từ vựng ngay hôm nay',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
                   ),
-            ),
+                ),
                 const SizedBox(height: 40),
                 Expanded(
                   child: GridView.count(
@@ -55,37 +59,39 @@ class HomeScreen extends StatelessWidget {
                         'Học từ vựng',
                         Icons.school,
                         Colors.orange,
-                        () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VocabularySetScreen(
-                      userId: 'user123',
-                    ),
-                  ),
-                );
-              },
+                            () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VocabularySetScreen(
+                                userId: 'user123',
+                              ),
+                            ),
+                          );
+                        },
                       ),
+                      //3.1 Thẻ chức năng "Kiểm tra"
                       _buildFeatureCard(
                         context,
                         'Kiểm tra',
                         Icons.quiz,
                         Colors.green,
-                        () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
+                            () {
+                          Navigator.push(
+                            context,
+                            //3.2 Hệ thống sẽ chuyển người dùng đến màn hình QuizScreen
+                            MaterialPageRoute(
                               builder: (context) => QuizScreen(userId: 'user123'),
-                  ),
-                );
-              },
+                            ),
+                          );
+                        },
                       ),
                       _buildFeatureCard(
                         context,
                         'Từ đã nhớ',
                         Icons.check_circle,
                         Colors.blue,
-                        () {
+                            () {
                           // TODO: Implement remembered words screen
                         },
                       ),
@@ -94,6 +100,7 @@ class HomeScreen extends StatelessWidget {
                         'Thống kê',
                         Icons.bar_chart,
                         Colors.purple,
+
                         () {
                           Navigator.push(
                             context,
@@ -101,6 +108,7 @@ class HomeScreen extends StatelessWidget {
                               builder: (context) => const StatisticsScreen(),
                             ),
                           );
+
                         },
                       ),
                     ],
@@ -115,12 +123,12 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildFeatureCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+      BuildContext context,
+      String title,
+      IconData icon,
+      Color color,
+      VoidCallback onTap,
+      ) {
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -140,7 +148,7 @@ class HomeScreen extends StatelessWidget {
                 color,
               ],
             ),
-              ),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -156,9 +164,9 @@ class HomeScreen extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                ),
               ),
-            ),
-          ],
+            ],
           ),
         ),
       ),

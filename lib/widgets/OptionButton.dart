@@ -24,12 +24,14 @@ class OptionButton extends StatelessWidget {
     Border? border;
 
     if (showAnswer) {
+      //Kết quả đúng hiển thị màu xanh
       if (isCorrect) {
         backgroundColor = Colors.green;
         textColor = Colors.white;
         elevation = 8;
         border = Border.all(color: Colors.green.shade700, width: 2);
       } else if (isSelected) {
+        //Nếu chọn sai sẽ hiển thị kết quả màu đỏ
         backgroundColor = Colors.red;
         textColor = Colors.white;
         elevation = 8;

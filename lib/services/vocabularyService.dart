@@ -81,7 +81,7 @@ class VocabularyService {
       'lastStudied': FieldValue.serverTimestamp(),
     });
   }
-  //3.5 Lấy danh sách các từ có status='remembered' từ database
+  //3.4 Lấy danh sách các từ có status='remembered' từ database
   Future<List<Vocabulary>> getAllRememberedWords(String userId) async {
     try {
       // Sử dụng collectionGroup với index đã tạo
@@ -103,7 +103,7 @@ class VocabularyService {
     }
   }
 
-  // 3.11 Lưu kết quả kiểm tra vào database
+  // 3.10 Lưu kết quả kiểm tra vào database
 
   Future<void> saveQuizResult(
       String userId, int correctAnswers, int totalQuestions) async {

@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../models/statistics.dart';
 import '../services/statisticsService.dart';
 
+// 6.3. Hệ thống chuyển sang màn hình thống kê và thực hiện khởi tạo (initState())
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
 
@@ -11,6 +12,7 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerProviderStateMixin {
+  // 6.4. Hệ thống gọi hàm getStatistics() để bắt đầu lấy dữ liệu thống kê
   final StatisticsService _statisticsService = StatisticsService();
   late Future<Statistics> _statisticsFuture;
   late TabController _tabController;
@@ -18,7 +20,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _statisticsFuture = _statisticsService.getStatistics();
+    // 6.3. Gọi initState() khi vào màn hình thống kê
+    _statisticsFuture = _statisticsService.getStatistics(); // 6.4. Gọi getStatistics()
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -30,6 +33,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    // 6.9. Hệ thống trả về dữ liệu thống kê cho màn hình giao diện
     return Scaffold(
       appBar: AppBar(
         title: const Text('Thống kê học tập'),
@@ -49,28 +53,32 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Lỗi: ${snapshot.error}'));
+            // 6.12. Alternative Flow: Nếu lỗi kết nối hoặc không có dữ liệu
+            // Hệ thống hiển thị thông báo lỗi cho người dùng
+            return Center(child: Text('Đã có lỗi xảy ra. Vui lòng kiểm tra kết nối mạng.'));
           }
 
           final statistics = snapshot.data!;
+          // 6.10. Màn hình giao diện gọi các hàm hiển thị:
+          // 6.10.1. Hiển thị tổng quan, tỷ lệ đúng, tiến độ học tập, thành tích và danh sách từ vựng.
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildOverviewCard(statistics),
+                _buildOverviewCard(statistics), // 6.10.1. Hiển thị tổng quan
                 const SizedBox(height: 20),
-                _buildProgressChart(statistics),
+                _buildProgressChart(statistics), // 6.10.1. Hiển thị biểu đồ tiến độ học tập
                 const SizedBox(height: 20),
-                _buildAchievementsCard(statistics),
+                _buildAchievementsCard(statistics), // 6.10.1. Hiển thị thành tích
                 const SizedBox(height: 20),
                 SizedBox(
                   height: 300,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      _buildVocabularyList(statistics, true),
-                      _buildVocabularyList(statistics, false),
+                      _buildVocabularyList(statistics, true), // 6.10.1. Hiển thị danh sách từ đã ghi nhớ
+                      _buildVocabularyList(statistics, false), // 6.10.1. Hiển thị danh sách từ cần ôn lại
                     ],
                   ),
                 ),

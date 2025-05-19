@@ -5,16 +5,24 @@ class StatisticsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String userId = 'user123'; // Set cứng user ID
 
+  // 6.4. Hệ thống gọi hàm getStatistics() để bắt đầu lấy dữ liệu thống kê
   Future<Statistics> getStatistics() async {
     try {
       print('--- Bắt đầu lấy thống kê (collectionGroup) ---');
+      // 6.5. Truy vấn dữ liệu các bộ từ vựng từ cơ sở dữ liệu
       final totalFlashcards = await _getTotalFlashcards();
+      // 6.7.1. Tính tỷ lệ đúng
       final correctRate = await _getCorrectRate();
+      // 6.7.3. Tính tiến độ học tập theo ngày
       final dailyProgress = await _getDailyProgress();
+      // 6.7.5. Lấy danh sách từ vựng và trạng thái
       final vocabularyStatus = await _getVocabularyStatus();
+      // 6.7.4. Tính số ngày học liên tục
       final streakDays = await _getStreakDays();
+      // 6.7.5. Tính số bộ từ đã hoàn thành
       final completedSets = await _getCompletedSets();
       print('--- Kết thúc lấy thống kê (collectionGroup) ---');
+      // 6.8. Hệ thống tổng hợp các kết quả trên thành một đối tượng dữ liệu thống kê
       return Statistics(
         totalFlashcards: totalFlashcards,
         correctRate: correctRate,
@@ -25,10 +33,12 @@ class StatisticsService {
       );
     } catch (e) {
       print('Error getting statistics: $e');
+      // 6.12. Nếu lỗi, trả về dữ liệu mẫu
       return _createSampleData();
     }
   }
 
+  // 6.7.2. Tính tổng số flashcard đã học
   Future<int> _getTotalFlashcards() async {
     try {
       final query = await _firestore.collectionGroup('words').get();
@@ -40,6 +50,7 @@ class StatisticsService {
     }
   }
 
+  // 6.7.1. Tính tỷ lệ đúng
   Future<double> _getCorrectRate() async {
     try {
       final quizResults = await _firestore
@@ -64,6 +75,7 @@ class StatisticsService {
     }
   }
 
+  // 6.7.3. Tính tiến độ học tập theo ngày
   Future<List<DailyProgress>> _getDailyProgress() async {
     try {
       final now = DateTime.now();
@@ -91,6 +103,7 @@ class StatisticsService {
     }
   }
 
+  // 6.7.5. Lấy danh sách từ vựng và trạng thái
   Future<List<VocabularyStatus>> _getVocabularyStatus() async {
     try {
       final query = await _firestore.collectionGroup('words').get();
@@ -111,6 +124,7 @@ class StatisticsService {
     }
   }
 
+  // 6.7.4. Tính số ngày học liên tục
   Future<int> _getStreakDays() async {
     try {
       final now = DateTime.now();
@@ -137,6 +151,7 @@ class StatisticsService {
     }
   }
 
+  // 6.7.5. Tính số bộ từ đã hoàn thành
   Future<int> _getCompletedSets() async {
     try {
       // Đếm số bộ mà tất cả các từ đều remembered

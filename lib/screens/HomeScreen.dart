@@ -9,6 +9,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 6.1. Người dùng đang ở màn hình chính (HomeScreen)
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -95,6 +96,7 @@ class HomeScreen extends StatelessWidget {
                         Icons.bar_chart,
                         Colors.purple,
                         () {
+                          // 6.2. Người dùng chọn icon "Xem thống kê kết quả học tập"
                           Navigator.push(
                             context,
                             MaterialPageRoute(

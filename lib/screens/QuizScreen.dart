@@ -24,7 +24,6 @@ class _QuizScreenState extends State<QuizScreen> {
   late List<String> currentOptions;
   final VocabularyService _vocabularyService = VocabularyService();
 
-  //3.3 Khởi tạo hàm _loadQuestions()
   @override
   void initState() {
     super.initState();
@@ -34,10 +33,9 @@ class _QuizScreenState extends State<QuizScreen> {
   Future<void> _loadQuestions() async {
     final rememberedWords = await _vocabularyService.getAllRememberedWords(widget.userId);
     setState(() {
-      //3.4 Tạo danh sách các câu hỏi
+      //3.3 Tạo danh sách các câu hỏi
       questions = rememberedWords..shuffle();
-      // Giới hạn tối đa 5 câu hỏi
-      if (questions.length > 5) {
+      if (questions.length == 5) {
         questions = questions.sublist(0, 5);
       }
       _isLoading = false;
@@ -46,7 +44,7 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     });
   }
-  //3.6 Tạo đáp án để người dùng lựa chọn
+  //3.5 Tạo đáp án để người dùng lựa chọn
   void setOptionsForCurrentQuestion() {
     final question = questions[currentQuestionIndex];
     final options = [question.meaning];
@@ -60,7 +58,7 @@ class _QuizScreenState extends State<QuizScreen> {
     options.shuffle();
     currentOptions = options;
   }
-  //3.8 Kiểm tra đáp án
+  //3.7 Kiểm tra đáp án
   void checkAnswer(String answer) async {
     if (isAnswered) return;
     final isCorrect = answer == questions[currentQuestionIndex].meaning;
@@ -68,13 +66,13 @@ class _QuizScreenState extends State<QuizScreen> {
     setState(() {
       selectedAnswer = answer;
       isAnswered = true;
-      //3.9 Hiển thị đáp án
+      //3.8 Hiển thị đáp án
       showAnswer = true;
       if (isCorrect) {
         score++;
       }
     });
-    //3.10 Chuyển tiếp câu hỏi sau 2s
+    //3.9 Chuyển tiếp câu hỏi sau 2s
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         if (currentQuestionIndex < questions.length - 1) {
@@ -97,7 +95,7 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     });
   }
-  // 3.10 Hiển thị kết quả
+  // 3.11 Hiển thị kết quả
   void _showResultDialog() {
     showDialog(
       context: context,
@@ -129,7 +127,7 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       );
     }
-    // Nếu chưa học từ nào sẽ gửi thông báo cho người dùng
+
     if (questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Kiểm tra từ vựng')),
@@ -144,6 +142,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ],
             ),
           ),
+          // 3.6 Nếu chưa học từ nào sẽ gửi thông báo cho người dùng
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

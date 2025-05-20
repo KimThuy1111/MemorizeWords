@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import '../controllers/QuizController.dart';
 import '../services/vocabularyService.dart';
 import '../models/vocabulary.dart';
-import '../widgets/OptionButton.dart';
-import '../widgets/ProgressIndicator.dart';
+
 
 class QuizScreen extends StatefulWidget {
   final String userId;
@@ -24,6 +24,7 @@ class _QuizScreenState extends State<QuizScreen> {
   late List<String> currentOptions;
   final VocabularyService _vocabularyService = VocabularyService();
 
+  //3.3 Gọi hàm _loadQuestions() để tải danh sách câu hỏi.
   @override
   void initState() {
     super.initState();
@@ -31,11 +32,14 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _loadQuestions() async {
-    final rememberedWords = await _vocabularyService.getAllRememberedWords(widget.userId);
+    //3.4 Lấy danh sách các từ vựng
+    final rememberedWords = await _vocabularyService.getAllRememberedWords(
+        widget.userId);
     setState(() {
-      //3.3 Tạo danh sách các câu hỏi
+      //3.6 Kết quả trả về được trộn ngẫu nhiên bằng shuffle()
       questions = rememberedWords..shuffle();
-      if (questions.length == 5) {
+      //3.7 Lấy 5 từ đầu tiên sau khi trộn
+      if (questions.length > 5) {
         questions = questions.sublist(0, 5);
       }
       _isLoading = false;
@@ -44,7 +48,8 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     });
   }
-  //3.5 Tạo đáp án để người dùng lựa chọn
+
+  //3.8 Tạo các lựa chọn cho câu hỏi.
   void setOptionsForCurrentQuestion() {
     final question = questions[currentQuestionIndex];
     final options = [question.meaning];
@@ -53,69 +58,16 @@ class _QuizScreenState extends State<QuizScreen> {
         .where((q) => q.meaning != question.meaning)
         .map((q) => q.meaning)
         .toList();
-    // Thêm 3 đáp án sai (hoặc ít hơn nếu không đủ)
+    // Thêm 2 đáp án sai
     options.addAll(otherMeanings.take(2));
+    //3.9 Các đáp án được xáo trộn thứ tự bằng shuffle()
     options.shuffle();
     currentOptions = options;
   }
-  //3.7 Kiểm tra đáp án
-  void checkAnswer(String answer) async {
-    if (isAnswered) return;
-    final isCorrect = answer == questions[currentQuestionIndex].meaning;
-    
-    setState(() {
-      selectedAnswer = answer;
-      isAnswered = true;
-      //3.8 Hiển thị đáp án
-      showAnswer = true;
-      if (isCorrect) {
-        score++;
-      }
-    });
-    //3.9 Chuyển tiếp câu hỏi sau 2s
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        if (currentQuestionIndex < questions.length - 1) {
-          setState(() {
-            currentQuestionIndex++;
-            selectedAnswer = null;
-            isAnswered = false;
-            showAnswer = false;
-            setOptionsForCurrentQuestion();
-          });
-        } else {
-          // Gọi hàm saveQuizResult để lưu kết quả khi hoàn thành bài kiểm tra
-          _vocabularyService.saveQuizResult(
-              widget.userId,
-              score,
-              questions.length
-          );
-          _showResultDialog();
-        }
-      }
-    });
-  }
-  // 3.11 Hiển thị kết quả
-  void _showResultDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Kết quả kiểm tra'),
-        content: Text('Bạn đã trả lời đúng $score/${questions.length} câu'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Đóng dialog
-              Navigator.pop(context); // Quay lại màn hình trước
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
 
+
+
+  //3.10 Hiển thị giao diện bài kiểm tra
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -127,7 +79,7 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       );
     }
-
+    // 3.7 Hiển thị thông báo yêu cầu người dùng học thêm từ.
     if (questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Kiểm tra từ vựng')),
@@ -142,7 +94,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ],
             ),
           ),
-          // 3.6 Nếu chưa học từ nào sẽ gửi thông báo cho người dùng
+
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -164,7 +116,8 @@ class _QuizScreenState extends State<QuizScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -207,6 +160,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 total: questions.length,
               ),
               const SizedBox(height: 24),
+              //Hiển thị thẻ câu hỏi
               Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
@@ -216,7 +170,9 @@ class _QuizScreenState extends State<QuizScreen> {
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: [
-                      if (currentQuestion.imageUrl != null && currentQuestion.imageUrl!.isNotEmpty)
+                      //Hiển thị hình ảnh
+                      if (currentQuestion.imageUrl != null &&
+                          currentQuestion.imageUrl!.isNotEmpty)
                         ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: Image.network(
@@ -228,12 +184,14 @@ class _QuizScreenState extends State<QuizScreen> {
                               return Container(
                                 height: 180,
                                 color: Colors.grey[300],
-                                child: const Center(child: Icon(Icons.broken_image, size: 48)),
+                                child: const Center(
+                                    child: Icon(Icons.broken_image, size: 48)),
                               );
                             },
                           ),
                         ),
                       const SizedBox(height: 20),
+                      //Hiển thị từ vựng
                       Text(
                         currentQuestion.word,
                         style: const TextStyle(
@@ -248,12 +206,13 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
               ),
               const SizedBox(height: 24),
+              //Danh sách các đáp án
               Expanded(
                 child: ListView.builder(
                   itemCount: options.length,
                   itemBuilder: (context, index) {
                     final option = options[index];
-                    return OptionButton(
+                    return QuizController(
                       text: option,
                       isCorrect: option == currentQuestion.meaning,
                       isSelected: option == selectedAnswer,
@@ -267,6 +226,65 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ),
       ),
+    );
+  }
+
+//3.12 Kiểm tra đáp án
+  void checkAnswer(String answer) async {
+    if (isAnswered) return;
+    final isCorrect = answer == questions[currentQuestionIndex].meaning;
+
+    setState(() {
+      selectedAnswer = answer;
+      isAnswered = true;
+      showAnswer = true;
+      //3.14 Tăng biến score lên 1
+      if (isCorrect) {
+        score++;
+      }
+    });
+    //3.14 Chuyển đến câu hỏi tiếp theo sau 2s
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        if (currentQuestionIndex < questions.length - 1) {
+          setState(() {
+            currentQuestionIndex++;
+            selectedAnswer = null;
+            isAnswered = false;
+            showAnswer = false;
+            setOptionsForCurrentQuestion();
+          });
+        } else {
+          //3.14 Lưu kết quả bài kiểm tra
+          _vocabularyService.saveQuizResult(
+              widget.userId,
+              score,
+              questions.length
+          );
+          _showResultDialog();
+        }
+      }
+    });
+  }
+  // 3.16 Hiển thị kết quả
+  void _showResultDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) =>
+          AlertDialog(
+            title: const Text('Kết quả kiểm tra'),
+            content: Text('Bạn đã trả lời đúng $score/${questions.length} câu'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Đóng dialog
+                  Navigator.pop(context); // Quay lại màn hình trước
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
     );
   }
 }

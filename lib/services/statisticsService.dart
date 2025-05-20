@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/statistics.dart';
+import '../models/Statistics.dart';
 
 class StatisticsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

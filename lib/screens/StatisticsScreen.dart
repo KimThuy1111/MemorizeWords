@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
-import '../models/statistics.dart';
-import '../controllers/statistics_controller.dart';
+import '../models/Statistics.dart';
+import '../controllers/StatisticsController.dart';
 
 // 6.3. Hệ thống chuyển sang màn hình thống kê và thực hiện khởi tạo (initState())
 class StatisticsScreen extends StatefulWidget {

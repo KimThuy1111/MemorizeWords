@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/statistics.dart';
+import '../models/Statistics.dart';
 import '../services/statisticsService.dart';
 
 class StatisticsController extends ChangeNotifier {

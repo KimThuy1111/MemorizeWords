@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/HomeScreen.dart';
 import 'services/statisticsService.dart';
-import 'controllers/statistics_controller.dart';
+import 'controllers/StatisticsController.dart';
 import 'screens/flashcardScreen.dart';
 import '../controllers/flashcardController.dart';  // Thêm import controller
 

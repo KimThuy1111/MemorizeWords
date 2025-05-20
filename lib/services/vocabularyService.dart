@@ -81,10 +81,10 @@ class VocabularyService {
       'lastStudied': FieldValue.serverTimestamp(),
     });
   }
-  //3.4 Lấy danh sách các từ có status='remembered' từ database
+  //3.5 Lấy tất cả từ vựng có trạng thái 'remembered' từ Firestore.
   Future<List<Vocabulary>> getAllRememberedWords(String userId) async {
     try {
-      // Sử dụng collectionGroup với index đã tạo
+
       final query = await _firestore
           .collectionGroup('words')
           .where('status', isEqualTo: 'remembered')
@@ -103,8 +103,7 @@ class VocabularyService {
     }
   }
 
-  // 3.10 Lưu kết quả kiểm tra vào database
-
+  //3.15 Lưu kết quả bài kiểm tra vào Firestore
   Future<void> saveQuizResult(
       String userId, int correctAnswers, int totalQuestions) async {
     await _firestore.collection('users').doc(userId).collection('quizz').add({

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 
 import 'QuizScreen.dart';
-import 'flashcardScreen.dart';
 
 import 'StatisticsScreen.dart';
 

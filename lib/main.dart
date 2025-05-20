@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:memorize_word/screens/HomeScreen.dart';
-import 'package:memorize_word/services/statisticsService.dart';
+import 'screens/HomeScreen.dart';
+import 'services/statisticsService.dart';
+import 'controllers/statistics_controller.dart';
 import 'screens/flashcardScreen.dart';
 import '../controllers/flashcardController.dart';  // Thêm import controller
 
@@ -9,20 +11,35 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await StatisticsService().debugPrintAllWordsCollectionGroup();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Vocabulary Learning App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      providers: [
+        Provider<StatisticsService>(
+          create: (_) => StatisticsService(),
+        ),
+        ChangeNotifierProxyProvider<StatisticsService, StatisticsController>(
+          create: (context) => StatisticsController(
+            context.read<StatisticsService>(),
+          ),
+          update: (context, service, previous) => StatisticsController(service),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Vocabulary Learning App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const HomeScreen(),
+        debugShowCheckedModeBanner: false,
       ),
-      home: const HomeScreen(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }

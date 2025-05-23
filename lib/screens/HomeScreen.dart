@@ -4,7 +4,6 @@ import '../main.dart';
 
 import 'AddVocabScreen.dart';
 import 'QuizScreen.dart';
-import 'flashcardScreen.dart';
 
 import 'StatisticsScreen.dart';
 
@@ -80,7 +79,7 @@ class HomeScreen extends StatelessWidget {
                         () {
                           Navigator.push(
                             context,
-                            //3.2 Hệ thống sẽ chuyển người dùng đến màn hình QuizScreen
+                            //3.2 Khởi tạo QuizScreen với userId của người dùng hiện tại.
                             MaterialPageRoute(
                               builder: (context) =>
                                   QuizScreen(userId: 'user123'),

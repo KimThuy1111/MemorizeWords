@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../models/statistics.dart';
-import '../services/statisticsService.dart';
+import 'package:provider/provider.dart';
+import '../models/Statistics.dart';
+import '../controllers/StatisticsController.dart';
 
 // 6.3. Hệ thống chuyển sang màn hình thống kê và thực hiện khởi tạo (initState())
 class StatisticsScreen extends StatefulWidget {
@@ -12,17 +13,16 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerProviderStateMixin {
-  // 6.4. Hệ thống gọi hàm getStatistics() để bắt đầu lấy dữ liệu thống kê
-  final StatisticsService _statisticsService = StatisticsService();
-  late Future<Statistics> _statisticsFuture;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    // 6.3. Gọi initState() khi vào màn hình thống kê
-    _statisticsFuture = _statisticsService.getStatistics(); // 6.4. Gọi getStatistics()
     _tabController = TabController(length: 2, vsync: this);
+    // Khởi tạo dữ liệu thống kê khi màn hình được tạo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StatisticsController>().initializeStatistics();
+    });
   }
 
   @override
@@ -33,7 +33,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    // 6.9. Hệ thống trả về dữ liệu thống kê cho màn hình giao diện
     return Scaffold(
       appBar: AppBar(
         title: const Text('Thống kê học tập'),
@@ -45,40 +44,39 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
           ],
         ),
       ),
-      body: FutureBuilder<Statistics>(
-        future: _statisticsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: Consumer<StatisticsController>(
+        builder: (context, controller, child) {
+          if (controller.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (snapshot.hasError) {
-            // 6.12. Alternative Flow: Nếu lỗi kết nối hoặc không có dữ liệu
-            // Hệ thống hiển thị thông báo lỗi cho người dùng
-            return Center(child: Text('Đã có lỗi xảy ra. Vui lòng kiểm tra kết nối mạng.'));
+          if (controller.error != null) {
+            return Center(child: Text(controller.error!));
           }
 
-          final statistics = snapshot.data!;
-          // 6.10. Màn hình giao diện gọi các hàm hiển thị:
-          // 6.10.1. Hiển thị tổng quan, tỷ lệ đúng, tiến độ học tập, thành tích và danh sách từ vựng.
+          final statistics = controller.statistics;
+          if (statistics == null) {
+            return const Center(child: Text('Không có dữ liệu thống kê'));
+          }
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildOverviewCard(statistics), // 6.10.1. Hiển thị tổng quan
+                _buildOverviewCard(controller),
                 const SizedBox(height: 20),
-                _buildProgressChart(statistics), // 6.10.1. Hiển thị biểu đồ tiến độ học tập
+                _buildProgressChart(controller),
                 const SizedBox(height: 20),
-                _buildAchievementsCard(statistics), // 6.10.1. Hiển thị thành tích
+                _buildAchievementsCard(controller),
                 const SizedBox(height: 20),
                 SizedBox(
                   height: 300,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      _buildVocabularyList(statistics, true), // 6.10.1. Hiển thị danh sách từ đã ghi nhớ
-                      _buildVocabularyList(statistics, false), // 6.10.1. Hiển thị danh sách từ cần ôn lại
+                      _buildVocabularyList(controller.getMemorizedWords()),
+                      _buildVocabularyList(controller.getWordsToReview()),
                     ],
                   ),
                 ),
@@ -90,7 +88,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
     );
   }
 
-  Widget _buildOverviewCard(Statistics statistics) {
+  Widget _buildOverviewCard(StatisticsController controller) {
     return Card(
       elevation: 4,
       child: Padding(
@@ -108,12 +106,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
               children: [
                 _buildStatItem(
                   'Tổng số từ',
-                  statistics.totalFlashcards.toString(),
+                  controller.getTotalFlashcards().toString(),
                   Icons.book,
                 ),
                 _buildStatItem(
                   'Tỷ lệ đúng',
-                  '${(statistics.correctRate * 100).toStringAsFixed(1)}%',
+                  '${(controller.getCorrectRate() * 100).toStringAsFixed(1)}%',
                   Icons.check_circle,
                 ),
               ],
@@ -141,10 +139,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
     );
   }
 
-  Widget _buildProgressChart(Statistics statistics) {
-    final maxY = statistics.dailyProgress.isNotEmpty
-        ? statistics.dailyProgress.map((e) => e.flashcardsLearned.toDouble()).reduce((a, b) => a > b ? a : b) * 1.2
+  Widget _buildProgressChart(StatisticsController controller) {
+    final progress = controller.getRecentProgress();
+    final maxY = progress.isNotEmpty
+        ? progress.map((e) => e.flashcardsLearned.toDouble()).reduce((a, b) => a > b ? a : b) * 1.2
         : 10.0;
+
     return Card(
       elevation: 4,
       child: Padding(
@@ -163,7 +163,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
                   maxY: maxY,
-                  barGroups: statistics.dailyProgress
+                  barGroups: progress
                       .asMap()
                       .entries
                       .map((entry) {
@@ -188,10 +188,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
-                          if (statistics.dailyProgress.isEmpty || value.toInt() >= statistics.dailyProgress.length) {
+                          if (progress.isEmpty || value.toInt() >= progress.length) {
                             return const Text('');
                           }
-                          final date = statistics.dailyProgress[value.toInt()].date;
+                          final date = progress[value.toInt()].date;
                           return Text(
                             '${date.day}/${date.month}',
                             style: const TextStyle(fontSize: 10),
@@ -223,7 +223,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
     );
   }
 
-  Widget _buildAchievementsCard(Statistics statistics) {
+  Widget _buildAchievementsCard(StatisticsController controller) {
     return Card(
       elevation: 4,
       child: Padding(
@@ -241,13 +241,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
               children: [
                 _buildAchievementItem(
                   'Học liên tục',
-                  '${statistics.streakDays} ngày',
+                  '${controller.getStreakDays()} ngày',
                   Icons.local_fire_department,
                   Colors.orange,
                 ),
                 _buildAchievementItem(
                   'Bộ hoàn thành',
-                  '${statistics.completedSets} bộ',
+                  '${controller.getCompletedSets()} bộ',
                   Icons.emoji_events,
                   Colors.amber,
                 ),
@@ -277,19 +277,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> with SingleTickerPr
     );
   }
 
-  Widget _buildVocabularyList(Statistics statistics, bool isMemorized) {
-    final filteredList = statistics.vocabularyStatus
-        .where((item) => item.isMemorized == isMemorized)
-        .toList();
-
+  Widget _buildVocabularyList(List<VocabularyStatus> words) {
     return ListView.builder(
-      itemCount: filteredList.length,
+      itemCount: words.length,
       itemBuilder: (context, index) {
-        final item = filteredList[index];
+        final item = words[index];
         return ListTile(
           leading: Icon(
-            isMemorized ? Icons.check_circle : Icons.warning,
-            color: isMemorized ? Colors.green : Colors.orange,
+            item.isMemorized ? Icons.check_circle : Icons.warning,
+            color: item.isMemorized ? Colors.green : Colors.orange,
           ),
           title: Text(item.word),
           subtitle: Text(item.meaning),

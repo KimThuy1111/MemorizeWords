@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 
+import 'AddVocabScreen.dart';
 import 'QuizScreen.dart';
 import 'flashcardScreen.dart';
 
 import 'StatisticsScreen.dart';
-
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -60,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                         'Học từ vựng',
                         Icons.school,
                         Colors.orange,
-                            () {
+                        () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -77,12 +77,13 @@ class HomeScreen extends StatelessWidget {
                         'Kiểm tra',
                         Icons.quiz,
                         Colors.green,
-                            () {
+                        () {
                           Navigator.push(
                             context,
                             //3.2 Hệ thống sẽ chuyển người dùng đến màn hình QuizScreen
                             MaterialPageRoute(
-                              builder: (context) => QuizScreen(userId: 'user123'),
+                              builder: (context) =>
+                                  QuizScreen(userId: 'user123'),
                             ),
                           );
                         },
@@ -92,7 +93,7 @@ class HomeScreen extends StatelessWidget {
                         'Từ đã nhớ',
                         Icons.check_circle,
                         Colors.blue,
-                            () {
+                        () {
                           // TODO: Implement remembered words screen
                         },
                       ),
@@ -101,7 +102,6 @@ class HomeScreen extends StatelessWidget {
                         'Thống kê',
                         Icons.bar_chart,
                         Colors.purple,
-
                         () {
                           // 6.2. Người dùng chọn icon "Xem thống kê kết quả học tập"
                           Navigator.push(
@@ -110,9 +110,18 @@ class HomeScreen extends StatelessWidget {
                               builder: (context) => const StatisticsScreen(),
                             ),
                           );
-
                         },
                       ),
+                      // 6.1 Người dùng còn ô "Thêm từ vựng"
+                      _buildFeatureCard(
+                        context,
+                        'Thêm từ vựng',
+                        Icons.add_box_rounded,
+                        Colors.deepOrange,
+                        () {
+                          Navigator.of(context).pushNamed(AddVocabScreen.routeName);
+                        },
+                      )
                     ],
                   ),
                 ),
@@ -125,12 +134,12 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildFeatureCard(
-      BuildContext context,
-      String title,
-      IconData icon,
-      Color color,
-      VoidCallback onTap,
-      ) {
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(

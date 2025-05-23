@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:memorize_word/screens/AddVocabScreen.dart';
 import 'package:memorize_word/screens/HomeScreen.dart';
 import 'package:memorize_word/services/statisticsService.dart';
+import 'package:provider/provider.dart';
 import 'screens/flashcardScreen.dart';
-import '../controllers/flashcardController.dart';  // Thêm import controller
+import '../controllers/flashcardController.dart'; // Thêm import controller
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +24,10 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const HomeScreen(),
+      //6.1 Đăng ký route cho chức năng Thêm từ vựng
+      routes: {
+        AddVocabScreen.routeName: (ctx) => AddVocabScreen(), // đăng ký route
+      },
       debugShowCheckedModeBanner: false,
     );
   }
@@ -100,11 +106,13 @@ class VocabularySetScreen extends StatelessWidget {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 18),
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: (set['color'] as Color).withOpacity(0.15),
+                            backgroundColor:
+                                (set['color'] as Color).withOpacity(0.15),
                             radius: 28,
                             child: Icon(
                               set['icon'] as IconData,
@@ -123,7 +131,8 @@ class VocabularySetScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const Icon(Icons.chevron_right, color: Colors.grey, size: 28),
+                          const Icon(Icons.chevron_right,
+                              color: Colors.grey, size: 28),
                         ],
                       ),
                     ),

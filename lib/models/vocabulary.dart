@@ -23,6 +23,10 @@ class Vocabulary {
     );
   }
 
+//   factory Vocabulary.fromJson(Map<String, dynamic> json) => _$VocabularyFromJson(json);
+//   Map<String, dynamic> toJson() => _$VocabularyToJson(this);
+// }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

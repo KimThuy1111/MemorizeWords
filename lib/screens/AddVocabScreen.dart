@@ -96,7 +96,7 @@ class _AddVocabScreenState extends State<AddVocabScreen> {
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Trạng thái'),
                   value: _selectedStatus,
-                  items: ['review', 'learning', 'mastered']
+                  items: ['review', 'remembered']
                       .map((status) => DropdownMenuItem(
                             value: status,
                             child: Text(status),

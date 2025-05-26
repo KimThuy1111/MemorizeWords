@@ -3,14 +3,14 @@ class Vocabulary {
   final String word;
   final String meaning;
   String status; // "remembered", "review"
-  final String? imageUrl; // ✅ thêm thuộc tính mới
+  final String? imageUrl;
 
   Vocabulary({
     required this.id,
     required this.word,
     required this.meaning,
     this.status = 'review',
-    this.imageUrl, // ✅
+    this.imageUrl,
   });
 
   factory Vocabulary.fromJson(Map<String, dynamic> json) {
@@ -19,7 +19,7 @@ class Vocabulary {
       word: json['word'],
       meaning: json['meaning'],
       status: json['status'] ?? 'review',
-      imageUrl: json['imageUrl'], // ✅
+      imageUrl: json['imageUrl'],
     );
   }
 
@@ -32,4 +32,5 @@ class Vocabulary {
       'imageUrl': imageUrl, // ✅
     };
   }
+
 }

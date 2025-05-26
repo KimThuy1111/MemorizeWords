@@ -5,8 +5,6 @@ import '../main.dart';
 import 'QuizScreen.dart';
 
 import 'StatisticsScreen.dart';
-
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -70,7 +68,7 @@ class HomeScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      //3.1 Thẻ chức năng "Kiểm tra"
+                      //3.1 Người dùng chọn nút “Kiểm tra”
                       _buildFeatureCard(
                         context,
                         'Kiểm tra',
@@ -79,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                             () {
                           Navigator.push(
                             context,
-                            //3.2 Khởi tạo QuizScreen với userId của người dùng hiện tại.
+                            //3.2 Ứng dụng sẽ khởi tạo QuizScreen với userId của người dùng hiện tại.
                             MaterialPageRoute(
                               builder: (context) => QuizScreen(userId: 'user123'),
                             ),

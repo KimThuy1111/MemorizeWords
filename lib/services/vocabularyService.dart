@@ -1,5 +1,8 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import '../models/User.dart';
 import '../models/vocabulary.dart';
 
 class VocabularyService with ChangeNotifier {
@@ -8,7 +11,30 @@ class VocabularyService with ChangeNotifier {
   /*
   Thịnh test
    */
+  static VocabularyService getVocabularyService() {
+    return VocabularyService();
+  }
 
+  Future<List<Vocabulary>> getVocabByUser(User user) async {
+    final userDocRef =
+        FirebaseFirestore.instance.collection('users').doc("${user.id}");
+    final topicSetsSnapshot = await userDocRef.collection('topicSets').get();
+
+    List<Vocabulary> allVocabularies = [];
+
+    for (var topicDoc in topicSetsSnapshot.docs) {
+      final vocabSnapshot =
+          await topicDoc.reference.collection('vocabularies').get();
+
+      final vocabularies = vocabSnapshot.docs
+          .map((doc) => Vocabulary.fromMap(doc.data()))
+          .toList();
+
+      allVocabularies.addAll(vocabularies);
+    }
+
+    return allVocabularies;
+  }
 
   // Thêm bộ từ vựng vào Firestore
   Future<void> addVocabularySet(String userId) async {
@@ -16,13 +42,13 @@ class VocabularyService with ChangeNotifier {
     final mockData = {
       'Động vật': [
         Vocabulary(
-            id: '1',
+            vocabId: '1',
             word: 'Cat',
             meaning: 'Con mèo',
             imageUrl:
                 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg'),
         Vocabulary(
-            id: '2',
+            vocabId: '2',
             word: 'Dog',
             meaning: 'Con chó',
             imageUrl:
@@ -30,13 +56,13 @@ class VocabularyService with ChangeNotifier {
       ],
       'Đồ vật': [
         Vocabulary(
-            id: '3',
+            vocabId: '3',
             word: 'Table',
             meaning: 'Cái bàn',
             imageUrl:
                 'https://i.pinimg.com/736x/33/c5/51/33c55165bd7c0be17fa86c3fdd62bcf0.jpg'),
         Vocabulary(
-            id: '4',
+            vocabId: '4',
             word: 'Chair',
             meaning: 'Cái ghế',
             imageUrl:
@@ -44,13 +70,13 @@ class VocabularyService with ChangeNotifier {
       ],
       'Thời tiết': [
         Vocabulary(
-            id: '5',
+            vocabId: '5',
             word: 'Rain',
             meaning: 'Mưa',
             imageUrl:
                 'https://i.pinimg.com/736x/25/bf/5a/25bf5a29a626e3daa95b26b7c2df7c52.jpg'),
         Vocabulary(
-            id: '6',
+            vocabId: '6',
             word: 'Snow',
             meaning: 'Tuyết',
             imageUrl:
@@ -58,13 +84,13 @@ class VocabularyService with ChangeNotifier {
       ],
       'Cây cối': [
         Vocabulary(
-            id: '7',
+            vocabId: '7',
             word: 'Tree',
             meaning: 'Cây',
             imageUrl:
                 'https://i.pinimg.com/736x/81/9c/3b/819c3b2fb762b1149588591569e4a260.jpg'),
         Vocabulary(
-            id: '8',
+            vocabId: '8',
             word: 'Leaf',
             meaning: 'Lá cây',
             imageUrl:
@@ -83,7 +109,7 @@ class VocabularyService with ChangeNotifier {
 
       for (var vocabulary in mockData[set]!) {
         // Thêm từ vào collection 'words' của bộ từ vựng
-        await vocabularySetRef.collection('words').doc(vocabulary.id).set({
+        await vocabularySetRef.collection('words').doc(vocabulary.vocabId).set({
           'word': vocabulary.word,
           'meaning': vocabulary.meaning,
           'imageUrl': vocabulary.imageUrl,
@@ -107,7 +133,7 @@ class VocabularyService with ChangeNotifier {
     final querySnapshot = await vocabularySetRef.get();
     return querySnapshot.docs.map((doc) {
       return Vocabulary(
-        id: doc.id,
+        vocabId: doc['vocabId'],
         word: doc['word'],
         meaning: doc['meaning'],
         imageUrl: doc['imageUrl'],
@@ -145,7 +171,7 @@ class VocabularyService with ChangeNotifier {
 
       return query.docs
           .map((doc) => Vocabulary(
-                id: doc.id,
+                vocabId: doc['vocabId'],
                 word: doc['word'],
                 meaning: doc['meaning'],
                 imageUrl: doc['imageUrl'],
@@ -179,7 +205,7 @@ class VocabularyService with ChangeNotifier {
   }
 
   void removeVocabulary(String id) {
-    _vocabularies.removeWhere((v) => v.id == id);
+    _vocabularies.removeWhere((v) => v.vocabId == int.parse(id));
     notifyListeners();
   }
 }

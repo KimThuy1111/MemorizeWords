@@ -7,12 +7,13 @@ import 'package:uuid/uuid.dart';
 // 6.1 Hiện thực chức năng "Thêm từ vừng"
 class AddVocabScreen extends StatefulWidget {
   static const routeName = '/add-vocab';
+  static VocabularyService vocabularyService = VocabularyService();
 
   @override
-  _AddVocabScreenState createState() => _AddVocabScreenState();
+  AddVocabScreenState createState() => AddVocabScreenState();
 }
 
-class _AddVocabScreenState extends State<AddVocabScreen> {
+class AddVocabScreenState extends State<AddVocabScreen> {
   final _formKey = GlobalKey<FormState>();
   final _wordController = TextEditingController();
   final _meaningController = TextEditingController();
@@ -23,7 +24,7 @@ class _AddVocabScreenState extends State<AddVocabScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final newVocab = Vocabulary(
-      id: const Uuid().v4(),
+      vocabId: const Uuid().v4(),
       word: _wordController.text.trim(),
       meaning: _meaningController.text.trim(),
       status: _selectedStatus,
@@ -34,6 +35,8 @@ class _AddVocabScreenState extends State<AddVocabScreen> {
 
     Provider.of<VocabularyService>(context, listen: false)
         .addVocabulary(newVocab);
+
+    AddVocabScreen.vocabularyService.addVocabulary(newVocab);
 
     Navigator.of(context).pop();
   }

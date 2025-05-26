@@ -14,7 +14,7 @@ class QuizService {
           .get();
 
       return query.docs.map((doc) => Vocabulary(
-        id: doc.id,
+        vocabId: doc['vocabId'],
         word: doc['word'],
         meaning: doc['meaning'],
         imageUrl: doc['imageUrl'],

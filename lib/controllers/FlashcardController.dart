@@ -49,7 +49,7 @@ class FlashcardController {
     final current = currentWord;
     if (current == null) return;
 
-    await updateStatus(current.id, status);
+    await updateStatus(current.vocabId, status);
 
     if (status == 'review') {
       _reviewLaterList.add(current);

@@ -81,35 +81,5 @@ class VocabularyService {
       'lastStudied': FieldValue.serverTimestamp(),
     });
   }
-  //3.5 Lấy tất cả từ vựng có trạng thái 'remembered' từ Firestore.
-  Future<List<Vocabulary>> getAllRememberedWords(String userId) async {
-    try {
 
-      final query = await _firestore
-          .collectionGroup('words')
-          .where('status', isEqualTo: 'remembered')
-          .get();
-
-      return query.docs.map((doc) => Vocabulary(
-        id: doc.id,
-        word: doc['word'],
-        meaning: doc['meaning'],
-        imageUrl: doc['imageUrl'],
-        status: doc['status'],
-      )).toList();
-    } catch (e) {
-      print('Lỗi collectionGroup: $e');
-      return [];
-    }
-  }
-
-  //3.15 Lưu kết quả bài kiểm tra vào Firestore
-  Future<void> saveQuizResult(
-      String userId, int correctAnswers, int totalQuestions) async {
-    await _firestore.collection('users').doc(userId).collection('quizz').add({
-      'correctAnswers': correctAnswers,
-      'totalQuestions': totalQuestions,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-  }
 }

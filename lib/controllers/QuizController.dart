@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +16,6 @@ class QuizController extends StatelessWidget {
     required this.showAnswer,
     required this.onPressed,
   });
-  //3.13 Thiết lập màu sắc cho các đáp án
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = Colors.white;
@@ -26,14 +24,14 @@ class QuizController extends StatelessWidget {
     Border? border;
 
     if (showAnswer) {
-      //Kết quả đúng hiển thị màu xanh
+      //3.13 Hiển thị đáp án đúng - màu xanh
       if (isCorrect) {
         backgroundColor = Colors.green;
         textColor = Colors.white;
         elevation = 8;
         border = Border.all(color: Colors.green.shade700, width: 2);
       } else if (isSelected) {
-        //Nếu chọn sai sẽ hiển thị kết quả màu đỏ
+        //3.14 Hiển thị đáp án sai mà người dùng chọn - màu đỏ
         backgroundColor = Colors.red;
         textColor = Colors.white;
         elevation = 8;
@@ -79,23 +77,21 @@ class QuizController extends StatelessWidget {
 }
 class CustomProgressIndicator extends StatelessWidget {
   final int current;
-  final int total;
 
   const CustomProgressIndicator({
     super.key,
     required this.current,
-    required this.total,
   });
 
   @override
   Widget build(BuildContext context) {
-    double progress = current / total;
+    double progress = current / 5;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Câu $current / $total',
+          'Câu $current / 5',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,

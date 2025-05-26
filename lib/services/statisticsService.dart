@@ -58,12 +58,12 @@ class StatisticsService {
           .doc(userId)
           .collection('quizz')
           .get();
-      print('Số lần làm quiz: ${quizResults.docs.length}');
+      print('Số lần làm quizz: ${quizResults.docs.length}');
       if (quizResults.docs.isEmpty) return 0.0;
       int totalCorrect = 0;
       int totalQuestions = 0;
       for (var result in quizResults.docs) {
-        print('Quiz: correct=${result['correctAnswers']}, total=${result['totalQuestions']}');
+        print('Quizz: correct=${result['correctAnswers']}, total=${result['totalQuestions']}');
         totalCorrect += (result['correctAnswers'] as num).toInt();
         totalQuestions += (result['totalQuestions'] as num).toInt();
       }
@@ -86,11 +86,13 @@ class StatisticsService {
         final startOfDay = DateTime(date.year, date.month, date.day);
         final endOfDay = startOfDay.add(const Duration(days: 1));
         final query = await _firestore
-            .collectionGroup('words')
-            .where('lastStudied', isGreaterThanOrEqualTo: startOfDay)
-            .where('lastStudied', isLessThan: endOfDay)
+            .collection('users')
+            .doc(userId)
+            .collection('quizz')
+            .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
+            .where('timestamp', isLessThan: endOfDay)
             .get();
-        print('Ngày ${date.day}/${date.month}: Tổng số từ học (collectionGroup): ${query.docs.length}');
+          print('Ngày ${date.day}/${date.month}: Tổng số quizz: ${query.docs.length}');
         dailyProgress.add(DailyProgress(
           date: date,
           flashcardsLearned: query.docs.length,
@@ -134,16 +136,18 @@ class StatisticsService {
         final startOfDay = currentDate;
         final endOfDay = startOfDay.add(const Duration(days: 1));
         final query = await _firestore
-            .collectionGroup('words')
-            .where('lastStudied', isGreaterThanOrEqualTo: startOfDay)
-            .where('lastStudied', isLessThan: endOfDay)
+            .collection('users')
+            .doc(userId)
+            .collection('quizz')
+            .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
+            .where('timestamp', isLessThan: endOfDay)
             .get();
-        print('Streak - Ngày ${currentDate.day}/${currentDate.month}: Tổng số từ học (collectionGroup): ${query.docs.length}');
+        print('Streak - Ngày [1m${currentDate.day}/${currentDate.month}[0m: Tổng số quizz: ${query.docs.length}');
         if (query.docs.isEmpty) break;
         streakDays++;
         currentDate = currentDate.subtract(const Duration(days: 1));
       }
-      print('Số ngày streak (collectionGroup): $streakDays');
+      print('Số ngày streak: $streakDays');
       return streakDays;
     } catch (e) {
       print('Error getting streak days: $e');

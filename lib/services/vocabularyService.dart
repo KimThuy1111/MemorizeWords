@@ -11,9 +11,7 @@ class VocabularyService with ChangeNotifier {
   /*
   Thịnh test
    */
-  static VocabularyService getVocabularyService() {
-    return VocabularyService();
-  }
+
 
   Future<List<Vocabulary>> getVocabByUser(User user) async {
     final userDocRef =
@@ -41,56 +39,56 @@ class VocabularyService with ChangeNotifier {
     // Dữ liệu mẫu
     final mockData = {
       'Động vật': [
-        Vocabulary(
-            vocabId: '1',
+        Vocabulary.manualSetId(
+            vocabId: 1,
             word: 'Cat',
             meaning: 'Con mèo',
             imageUrl:
                 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg'),
-        Vocabulary(
-            vocabId: '2',
+        Vocabulary.manualSetId(
+            vocabId: 2,
             word: 'Dog',
             meaning: 'Con chó',
             imageUrl:
                 'https://i.pinimg.com/736x/66/21/d6/6621d6c3a9b44d4f022d96facdba04e4.jpg'),
       ],
       'Đồ vật': [
-        Vocabulary(
-            vocabId: '3',
+        Vocabulary.manualSetId(
+            vocabId: 3,
             word: 'Table',
             meaning: 'Cái bàn',
             imageUrl:
                 'https://i.pinimg.com/736x/33/c5/51/33c55165bd7c0be17fa86c3fdd62bcf0.jpg'),
-        Vocabulary(
-            vocabId: '4',
+        Vocabulary.manualSetId(
+            vocabId: 4,
             word: 'Chair',
             meaning: 'Cái ghế',
             imageUrl:
                 'https://i.pinimg.com/736x/2a/34/37/2a3437af6cdaf8584f90449a87e8095a.jpg'),
       ],
       'Thời tiết': [
-        Vocabulary(
-            vocabId: '5',
+        Vocabulary.manualSetId(
+            vocabId: 5,
             word: 'Rain',
             meaning: 'Mưa',
             imageUrl:
                 'https://i.pinimg.com/736x/25/bf/5a/25bf5a29a626e3daa95b26b7c2df7c52.jpg'),
-        Vocabulary(
-            vocabId: '6',
+        Vocabulary.manualSetId(
+            vocabId: 6,
             word: 'Snow',
             meaning: 'Tuyết',
             imageUrl:
                 'https://i.pinimg.com/736x/c6/47/b6/c647b6642495b2ab9e09e16035ec648c.jpg'),
       ],
       'Cây cối': [
-        Vocabulary(
-            vocabId: '7',
+        Vocabulary.manualSetId(
+            vocabId: 7,
             word: 'Tree',
             meaning: 'Cây',
             imageUrl:
                 'https://i.pinimg.com/736x/81/9c/3b/819c3b2fb762b1149588591569e4a260.jpg'),
-        Vocabulary(
-            vocabId: '8',
+        Vocabulary.manualSetId(
+            vocabId: 8,
             word: 'Leaf',
             meaning: 'Lá cây',
             imageUrl:
@@ -107,16 +105,16 @@ class VocabularyService with ChangeNotifier {
           .collection('vocabulary_sets')
           .doc(set);
 
-      for (var vocabulary in mockData[set]!) {
-        // Thêm từ vào collection 'words' của bộ từ vựng
-        await vocabularySetRef.collection('words').doc(vocabulary.vocabId).set({
-          'word': vocabulary.word,
-          'meaning': vocabulary.meaning,
-          'imageUrl': vocabulary.imageUrl,
-          'status': vocabulary.status,
-          'lastStudied': FieldValue.serverTimestamp(),
-        });
-      }
+      // for (var vocabulary in mockData[set]!) {
+      //   // Thêm từ vào collection 'words' của bộ từ vựng
+      //   await vocabularySetRef.collection('words').doc(vocabulary.vocabId).set({
+      //     'word': vocabulary.word,
+      //     'meaning': vocabulary.meaning,
+      //     'imageUrl': vocabulary.imageUrl,
+      //     'status': vocabulary.status,
+      //     'lastStudied': FieldValue.serverTimestamp(),
+      //   });
+      // }
     }
   }
 
@@ -132,7 +130,7 @@ class VocabularyService with ChangeNotifier {
 
     final querySnapshot = await vocabularySetRef.get();
     return querySnapshot.docs.map((doc) {
-      return Vocabulary(
+      return Vocabulary.manualSetId(
         vocabId: doc['vocabId'],
         word: doc['word'],
         meaning: doc['meaning'],
@@ -144,20 +142,28 @@ class VocabularyService with ChangeNotifier {
 
   // Cập nhật trạng thái của từ vựng
   Future<void> updateWordStatus(
-      String userId, String setName, String wordId, String status) async {
+      String userId, String setName, int wordId, String status) async {
     // Cập nhật trạng thái từ trong Firestore
-    final wordRef = _firestore
+    QuerySnapshot snapshot = await _firestore
         .collection('users')
         .doc(userId)
         .collection('vocabulary_sets')
         .doc(setName)
         .collection('words')
-        .doc(wordId);
+        .get();
 
-    await wordRef.update({
-      'status': status,
-      'lastStudied': FieldValue.serverTimestamp(),
-    });
+    List<Vocabulary> vocabs = snapshot.docs
+        .map((doc) => Vocabulary.manualSetId(
+            vocabId: doc['vocabId'],
+            word: doc['word'],
+            meaning: doc['meaning'],
+            imageUrl: doc['imageUrl']))
+        .toList();
+
+    // await wordsRef.update({
+    //   'status': status,
+    //   'lastStudied': FieldValue.serverTimestamp(),
+    // });
   }
 
   //3.4 Lấy danh sách các từ có status='remembered' từ database
@@ -170,7 +176,7 @@ class VocabularyService with ChangeNotifier {
           .get();
 
       return query.docs
-          .map((doc) => Vocabulary(
+          .map((doc) => Vocabulary.manualSetId(
                 vocabId: doc['vocabId'],
                 word: doc['word'],
                 meaning: doc['meaning'],

@@ -1,11 +1,22 @@
 class Vocabulary {
-  final String vocabId;
+  static int currentIdIndex = 0;
+  final int vocabId;
   final String word;
   final String meaning;
   String status; // "remembered", "review"
   final String? imageUrl;
 
-  Vocabulary({
+  // Vocabulary(this.word, this.meaning, this.status, this.imageUrl)
+  //
+
+  Vocabulary.autoSetId({
+    required this.word,
+    required this.meaning,
+    this.status = 'review',
+    this.imageUrl,
+  }) : vocabId = registerId();
+
+  Vocabulary.manualSetId({
     required this.vocabId,
     required this.word,
     required this.meaning,
@@ -13,8 +24,12 @@ class Vocabulary {
     this.imageUrl,
   });
 
-  factory Vocabulary. fromMap(Map<String, dynamic> data) {
-    return Vocabulary(
+  static int registerId() {
+    return currentIdIndex++;
+  }
+
+  factory Vocabulary.fromMap(Map<String, dynamic> data) {
+    return Vocabulary.manualSetId(
       vocabId: data['vocabId'],
       word: data['word'],
       meaning: data['meaning'],

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/vocabulary.dart';
@@ -19,12 +22,18 @@ class AddVocabScreenState extends State<AddVocabScreen> {
   final _meaningController = TextEditingController();
   final _imageUrlController = TextEditingController();
   String _selectedStatus = 'review';
+  final db = FirebaseFirestore.instance;
+
+  @override
+  void dispose() {
+    _wordController.dispose();
+    _meaningController.dispose();
+    _imageUrlController.dispose();
+  }
 
   void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
-
-    final newVocab = Vocabulary(
-      vocabId: const Uuid().v4(),
+    final newVocab = Vocabulary.autoSetId(
       word: _wordController.text.trim(),
       meaning: _meaningController.text.trim(),
       status: _selectedStatus,
@@ -32,13 +41,22 @@ class AddVocabScreenState extends State<AddVocabScreen> {
           ? null
           : _imageUrlController.text.trim(),
     );
-
-    Provider.of<VocabularyService>(context, listen: false)
-        .addVocabulary(newVocab);
+    //
+    // Provider.of<VocabularyService>(context, listen: false)
+    //     .addVocabulary(newVocab);
 
     AddVocabScreen.vocabularyService.addVocabulary(newVocab);
 
     Navigator.of(context).pop();
+  }
+
+  void addVocabDetail(Vocabulary vocab) {
+    db.collection('vocabularies').add({
+      'word': vocab.word,
+      'meaning': vocab.meaning,
+      'status': vocab.status,
+      'imageUrl': vocab.imageUrl,
+    });
   }
 
   @override
@@ -118,7 +136,11 @@ class AddVocabScreenState extends State<AddVocabScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _saveForm,
+                  // onPressed: _saveForm,
+                  onPressed: () {
+                    CollectionReference collRef =
+                        FirebaseFirestore.instance.collection('user');
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber,
                     shape: RoundedRectangleBorder(

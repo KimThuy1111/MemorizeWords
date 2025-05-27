@@ -9,7 +9,9 @@ class FlashcardController {
   int _currentIndex = 0;
 
   List<Vocabulary> get vocabList => _vocabList;
+
   int get currentIndex => _currentIndex;
+
   Vocabulary? get currentWord {
     if (_vocabList.isNotEmpty && _currentIndex < _vocabList.length) {
       return _vocabList[_currentIndex];
@@ -21,12 +23,10 @@ class FlashcardController {
   Future<void> initSession(String userId, String setName) async {
     _vocabList = await _service.getVocabularySet(userId, setName);
     if (_vocabList.isEmpty) {
-    } else {
-    }
+    } else {}
     _reviewLaterList = [];
     _currentIndex = 0;
   }
-
 
   bool nextWord() {
     if (_currentIndex < _vocabList.length - 1) {
@@ -39,11 +39,8 @@ class FlashcardController {
       return true; // ✅ Bắt đầu ôn lại
     }
     _currentIndex++; // Đặt vượt khỏi length → currentWord sẽ trả về null
-    return false;    // ❌ Không còn từ nào
+    return false; // ❌ Không còn từ nào
   }
-
-
-
 
   Future<void> handleAnswer(String status) async {
     final current = currentWord;
@@ -56,11 +53,9 @@ class FlashcardController {
     }
 
     nextWord();
-
   }
 
-
-  Future<void> updateStatus(String wordId, String status) async {
+  Future<void> updateStatus(int wordId, String status) async {
     final userId = 'user123'; // Thay thế bằng userId thực tế
     final setName = 'Động vật'; // Thay thế bằng setName thực tế
 
@@ -70,14 +65,14 @@ class FlashcardController {
       _vocabList[_currentIndex].status = status;
     }
   }
+
   // Định nghĩa phương thức addNewVocabularySet
   Future<void> addNewVocabularySet(String userId) async {
     try {
-      await _service.addVocabularySet(userId);  // gọi service để thêm bộ từ vựng
+      await _service.addVocabularySet(userId); // gọi service để thêm bộ từ vựng
       print('Vocabulary set added successfully');
     } catch (e) {
       print('Error adding vocabulary set: $e');
     }
   }
-
 }

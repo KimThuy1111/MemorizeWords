@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'Topic.dart';
 
 class User {
@@ -29,5 +31,15 @@ class User {
       'username': username,
       'password': password,
     };
+  }
+
+  factory User.fromDoc(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return User(
+      id: data['id'] ?? 0,
+      username: data['username'] ?? '',
+      password: data['password'] ?? '',
+      topicSets: data['topicSets'] ?? Set<Topic>(),
+    );
   }
 }

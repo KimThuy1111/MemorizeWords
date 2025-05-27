@@ -28,6 +28,22 @@ class Vocabulary {
     return currentIdIndex++;
   }
 
+  static Set<Vocabulary> getExample1() {
+    return {
+      Vocabulary.autoSetId(
+          word: "Cat", meaning: "Mèo", imageUrl: "", status: "review"),
+      Vocabulary.autoSetId(
+          word: "Dog", meaning: "Chó", imageUrl: "", status: "review")
+    };
+  }
+
+  static Set<Vocabulary> getExample2() {
+    return {
+      Vocabulary.autoSetId(word: "Table", meaning: "Bàn", status: "review"),
+      Vocabulary.autoSetId(word: "Chair", meaning: "Ghế", status: "remembered")
+    };
+  }
+
   factory Vocabulary.fromMap(Map<String, dynamic> data) {
     return Vocabulary.manualSetId(
       vocabId: data['vocabId'],

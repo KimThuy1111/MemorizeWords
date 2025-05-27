@@ -2,18 +2,87 @@ import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:memorize_word/services/UserService.dart';
+import '../models/Topic.dart';
 import '../models/User.dart';
 import '../models/vocabulary.dart';
 
 class VocabularyService with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final UserService _userService = UserService();
+  static User user = User.getExample(); //for test
 
-  /*
-  Thịnh test
-   */
+  //7.1.8 Firebase trả về xác nhận lưu thành công nếu add thành công
+  Future<bool> addVocabulary(Vocabulary vocab, User user, Topic topic) async {
+    try {
+      final userQuery = await _firestore
+          .collection('users')
+          .where('username', isEqualTo: user.username)
+          .limit(1)
+          .get();
+      if (userQuery.docs.isEmpty) {
+        print("Không tìm thấy người dùng.");
+        return false;
+      }
+      final userDocId = userQuery.docs.first.id;
+      final topicQuery = await _firestore
+          .collection('users')
+          .doc(userDocId)
+          .collection('topicSets')
+          .where('topicName', isEqualTo: user.topicSets.first)
+          .limit(1)
+          .get();
+      if (topicQuery.docs.isEmpty) {
+        print("Không tìm thấy topic: ${user.topicSets.first}");
+        return false;
+      }
+      final topicDocId = topicQuery.docs.first.id;
+      await _firestore
+          .collection('users')
+          .doc(userDocId)
+          .collection('topicSets')
+          .doc(topicDocId)
+          .collection('vocabularies')
+          .add(vocab.toMap());
 
+      print("✅ Đã lưu từ vựng thành công.");
+      return true;
+    } catch (e) {
+      print("❌ Lỗi khi thêm từ vựng: $e");
+      return false;
+    }
+  }
 
-  Future<List<Vocabulary>> getVocabByUser(User user) async {
+  //7.1.5 Hệ thống kiểm tra từ vựng trùng.
+  Future<bool> isVocabularyDuplicate(String username, Vocabulary vocab) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      print('Không tìm thấy người dùng');
+      return false;
+    }
+
+    final userId = snapshot.docs.first.id;
+
+    // Truy cập collection con vocabs của user
+    final vocabSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('vocabs')
+        .where('word', isEqualTo: vocab.word)
+        .limit(1)
+        .get();
+
+    return vocabSnapshot.docs.isNotEmpty;
+  }
+
+  Future<List<Vocabulary>> getVocabByUser(User user1) async {
+    String username = user.username;
+    _userService.getUserByUsername(username);
     final userDocRef =
         FirebaseFirestore.instance.collection('users').doc("${user.id}");
     final topicSetsSnapshot = await userDocRef.collection('topicSets').get();
@@ -35,93 +104,21 @@ class VocabularyService with ChangeNotifier {
   }
 
   // Thêm bộ từ vựng vào Firestore
-  Future<void> addVocabularySet(String userId) async {
-    // Dữ liệu mẫu
-    final mockData = {
-      'Động vật': [
-        Vocabulary.manualSetId(
-            vocabId: 1,
-            word: 'Cat',
-            meaning: 'Con mèo',
-            imageUrl:
-                'https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg'),
-        Vocabulary.manualSetId(
-            vocabId: 2,
-            word: 'Dog',
-            meaning: 'Con chó',
-            imageUrl:
-                'https://i.pinimg.com/736x/66/21/d6/6621d6c3a9b44d4f022d96facdba04e4.jpg'),
-      ],
-      'Đồ vật': [
-        Vocabulary.manualSetId(
-            vocabId: 3,
-            word: 'Table',
-            meaning: 'Cái bàn',
-            imageUrl:
-                'https://i.pinimg.com/736x/33/c5/51/33c55165bd7c0be17fa86c3fdd62bcf0.jpg'),
-        Vocabulary.manualSetId(
-            vocabId: 4,
-            word: 'Chair',
-            meaning: 'Cái ghế',
-            imageUrl:
-                'https://i.pinimg.com/736x/2a/34/37/2a3437af6cdaf8584f90449a87e8095a.jpg'),
-      ],
-      'Thời tiết': [
-        Vocabulary.manualSetId(
-            vocabId: 5,
-            word: 'Rain',
-            meaning: 'Mưa',
-            imageUrl:
-                'https://i.pinimg.com/736x/25/bf/5a/25bf5a29a626e3daa95b26b7c2df7c52.jpg'),
-        Vocabulary.manualSetId(
-            vocabId: 6,
-            word: 'Snow',
-            meaning: 'Tuyết',
-            imageUrl:
-                'https://i.pinimg.com/736x/c6/47/b6/c647b6642495b2ab9e09e16035ec648c.jpg'),
-      ],
-      'Cây cối': [
-        Vocabulary.manualSetId(
-            vocabId: 7,
-            word: 'Tree',
-            meaning: 'Cây',
-            imageUrl:
-                'https://i.pinimg.com/736x/81/9c/3b/819c3b2fb762b1149588591569e4a260.jpg'),
-        Vocabulary.manualSetId(
-            vocabId: 8,
-            word: 'Leaf',
-            meaning: 'Lá cây',
-            imageUrl:
-                'https://i.pinimg.com/736x/e8/72/51/e872511675261f99ecd4a76d1e0b147c.jpg'),
-      ],
-    };
-
+  Future<void> addVocabularySet(
+      Vocabulary vocab, Topic topic, User user1) async {
     // Duyệt qua các bộ từ vựng và thêm vào Firestore
-    for (var set in mockData.keys) {
-      // Tạo document cho bộ từ vựng
-      final vocabularySetRef = _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('vocabulary_sets')
-          .doc(set);
-
-      // for (var vocabulary in mockData[set]!) {
-      //   // Thêm từ vào collection 'words' của bộ từ vựng
-      //   await vocabularySetRef.collection('words').doc(vocabulary.vocabId).set({
-      //     'word': vocabulary.word,
-      //     'meaning': vocabulary.meaning,
-      //     'imageUrl': vocabulary.imageUrl,
-      //     'status': vocabulary.status,
-      //     'lastStudied': FieldValue.serverTimestamp(),
-      //   });
-      // }
-    }
+    QuerySnapshot snapshot = await _firestore
+        .collection('users')
+        .where("username", isEqualTo: user.id)
+        .limit(1)
+        .get();
+    snapshot.docs.map((doc) {});
   }
 
-  // Duyệt qua các bộ từ vựng và thêm vào Firestore
+// Duyệt qua các bộ từ vựng và thêm vào Firestore
   Future<List<Vocabulary>> getVocabularySet(
       String userId, String setName) async {
-    final vocabularySetRef = _firestore
+    final vocabularySetRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('vocabulary_sets')
@@ -140,7 +137,7 @@ class VocabularyService with ChangeNotifier {
     }).toList();
   }
 
-  // Cập nhật trạng thái của từ vựng
+// Cập nhật trạng thái của từ vựng
   Future<void> updateWordStatus(
       String userId, String setName, int wordId, String status) async {
     // Cập nhật trạng thái từ trong Firestore
@@ -166,7 +163,7 @@ class VocabularyService with ChangeNotifier {
     // });
   }
 
-  //3.4 Lấy danh sách các từ có status='remembered' từ database
+//3.4 Lấy danh sách các từ có status='remembered' từ database
   Future<List<Vocabulary>> getAllRememberedWords(String userId) async {
     try {
       // Sử dụng collectionGroup với index đã tạo
@@ -190,7 +187,7 @@ class VocabularyService with ChangeNotifier {
     }
   }
 
-  // 3.10 Lưu kết quả kiểm tra vào database
+// 3.10 Lưu kết quả kiểm tra vào database
 
   Future<void> saveQuizResult(
       String userId, int correctAnswers, int totalQuestions) async {
@@ -201,17 +198,19 @@ class VocabularyService with ChangeNotifier {
     });
   }
 
-  final List<Vocabulary> _vocabularies = [];
-
-  List<Vocabulary> get vocabularies => [..._vocabularies];
-
-  void addVocabulary(Vocabulary vocab) {
-    _vocabularies.add(vocab);
-    notifyListeners();
+  bool addTopic(Topic topic, User user) {
+    //if topic not exits, create it - > return true
+    //if topic exits - > return false
+    updateToFireBase(user);
+    return false;
   }
 
   void removeVocabulary(String id) {
-    _vocabularies.removeWhere((v) => v.vocabId == int.parse(id));
-    notifyListeners();
+    //remove
+    updateToFireBase(user);
+  }
+
+  void updateToFireBase(User user) {
+    _userService.updateUser(user);
   }
 }

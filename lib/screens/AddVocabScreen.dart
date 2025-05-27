@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/User.dart';
 import '../models/vocabulary.dart';
 import '../services/vocabularyService.dart';
 import 'package:uuid/uuid.dart';
 
-// 6.1 Hiện thực chức năng "Thêm từ vừng"
+// 7.1.2 Vẽ màn hình thêm từ vựng.
 class AddVocabScreen extends StatefulWidget {
   static const routeName = '/add-vocab';
   static VocabularyService vocabularyService = VocabularyService();
@@ -23,6 +24,8 @@ class AddVocabScreenState extends State<AddVocabScreen> {
   final _imageUrlController = TextEditingController();
   String _selectedStatus = 'review';
   final db = FirebaseFirestore.instance;
+  static User userEx = User.getExample();
+  static VocabularyService vocabularyService = VocabularyService();
 
   @override
   void dispose() {
@@ -31,7 +34,8 @@ class AddVocabScreenState extends State<AddVocabScreen> {
     _imageUrlController.dispose();
   }
 
-  void _saveForm() {
+//7.1.4 Admin/Content provider nhập biểu mẫu điền thông tin từ vựng và ấn lưu.
+  Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) return;
     final newVocab = Vocabulary.autoSetId(
       word: _wordController.text.trim(),
@@ -45,8 +49,33 @@ class AddVocabScreenState extends State<AddVocabScreen> {
     // Provider.of<VocabularyService>(context, listen: false)
     //     .addVocabulary(newVocab);
 
-    AddVocabScreen.vocabularyService.addVocabulary(newVocab);
+    //7.1.5 Kiểm tra trùng
+    //Lấy kết quả kiểm tra
+    bool isDuplicate = await vocabularyService.isVocabularyDuplicate(
+        userEx.username, newVocab);
+    //7.1.6 Nếu trùng trên Firebase thì hàm isVocabularyDuplicate() trả về false
+    if (isDuplicate) {
+      //7.1.10 Hiển thị cảnh báo trùng.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          //7.1.11 Hiển thị thông báo "Từ đã tồn tại, vui lòng nhập thông tin từ mới", hiển thị biểu mẫu điền từ vựng
+          content: Text('❗ Từ vựng đã tồn tại. Vui lòng nhập từ khác.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return; // Không thực hiện lưu
+    }
 
+    // 7.1.7 Hệ thống lưu từ vựng trên firebase
+    await vocabularyService.addVocabulary(
+        newVocab, userEx, userEx.topicSets.first);
+
+    // 7.1.9 Hệ thống hiện thông báo thành công.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('✅ Đã thêm từ vựng thành công.')),
+    );
+
+    // Quay về sau khi thêm
     Navigator.of(context).pop();
   }
 
@@ -68,6 +97,7 @@ class AddVocabScreenState extends State<AddVocabScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
+            //7.1.4 Admin/Content provider nhập biểu mẫu điền thông tin từ vựng và ấn lưu.
             onPressed: _saveForm,
           ),
         ],
@@ -88,6 +118,7 @@ class AddVocabScreenState extends State<AddVocabScreen> {
               ),
             ],
           ),
+          //7.1.3 Màn hình hiển thị form điền thông tin từ vựng
           child: Form(
             key: _formKey,
             child: Column(
@@ -137,6 +168,7 @@ class AddVocabScreenState extends State<AddVocabScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   // onPressed: _saveForm,
+                  //7.1.12 Hiển thị thông báo "Từ đã tồn tại, vui lòng nhập thông tin từ mới", hiển thị biểu mẫu điền từ vựng
                   onPressed: () {
                     CollectionReference collRef =
                         FirebaseFirestore.instance.collection('user');

@@ -3,10 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Topic.dart';
 
 class User {
-  final int id;
-  final String username;
-  final String password;
-  final Set<Topic> topicSets;
+  late final int id;
+  late final String username;
+  late final String password;
+  late final Set<Topic> topicSets;
+
+  User.getExample() {
+    this.id = 1;
+    this.username = "thinhlien";
+    this.password = "nhom9";
+    this.topicSets = {Topic.getExample1(), Topic.getExample2()};
+  }
 
   User(
       {required this.id,

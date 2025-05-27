@@ -1,15 +1,27 @@
 import 'package:memorize_word/models/vocabulary.dart';
 
 class Topic {
-  final String id;
-  final String name;
-  final Set<Vocabulary> vocabularies;
+  late final String id;
+  late final String name;
+  late final Set<Vocabulary> vocabularies;
 
   Topic({
     required this.id,
     required this.name,
     required this.vocabularies,
   });
+
+  Topic.getExample1() {
+    this.id = "1";
+    this.name = "Animal";
+    this.vocabularies = Vocabulary.getExample1();
+  }
+
+  Topic.getExample2() {
+    this.id = "2";
+    this.name = "Things";
+    this.vocabularies = Vocabulary.getExample2();
+  }
 
   factory Topic.fromMap(String id, Map<String, dynamic> data) {
     var vocabList = (data['vocabularies'] as List<dynamic>? ?? [])

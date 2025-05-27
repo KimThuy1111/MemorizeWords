@@ -111,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      // 6.1 Người dùng còn ô "Thêm từ vựng"
+                      // 7.1.2 Chuyển tới màn hình thêm từ vựng. (Của UC 7.1)
                       _buildFeatureCard(
                         context,
                         'Thêm từ vựng',

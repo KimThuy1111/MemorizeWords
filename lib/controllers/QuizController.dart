@@ -24,14 +24,14 @@ class QuizController extends StatelessWidget {
     Border? border;
 
     if (showAnswer) {
-      //3.13 Hiển thị đáp án đúng - màu xanh
+      //3.12 Hiển thị đáp án đúng - màu xanh
       if (isCorrect) {
         backgroundColor = Colors.green;
         textColor = Colors.white;
         elevation = 8;
         border = Border.all(color: Colors.green.shade700, width: 2);
       } else if (isSelected) {
-        //3.14 Hiển thị đáp án sai mà người dùng chọn - màu đỏ
+        //3.13 Hiển thị đáp án sai mà người dùng chọn - màu đỏ
         backgroundColor = Colors.red;
         textColor = Colors.white;
         elevation = 8;

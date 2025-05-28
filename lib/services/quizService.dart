@@ -31,7 +31,7 @@ class QuizService {
 
   Future<void> saveQuizResult(
       String userId, int correctAnswers, int totalQuestions) async {
-    //3.16 Hàm saveQuizResult() sẽ lưu kết quả bài kiểm tra vào Firestore
+    //3.15 Hàm saveQuizResult() sẽ lưu kết quả bài kiểm tra vào Firestore
     await _firestore.collection('users').doc(userId).collection('quiz').add({
       'correctAnswers': correctAnswers,
       'totalQuestions': totalQuestions,

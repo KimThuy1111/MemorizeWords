@@ -54,12 +54,11 @@ class _QuizScreenState extends State<QuizScreen> {
         .map((q) => q.meaning)
         .toList();
     options.addAll(otherMeanings.take(2));
-    //3.9 Các đáp án được xáo trộn thứ tự bằng shuffle().
     options.shuffle();
     currentOptions = options;
   }
 
-  //3.10 Hiển thị giao diện bài kiểm tra
+  //3.9 Hiển thị giao diện bài kiểm tra
   @override
   Widget build(BuildContext context) {
 
@@ -171,7 +170,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   itemCount: options.length,
                   itemBuilder: (context, index) {
                     final option = options[index];
-                    //3.12 Kiểm tra kết quả thông qua hàm checkAnswer(String answer) và truyền vào QuizController
+                    //3.11 Kiểm tra kết quả thông qua hàm checkAnswer(String answer) và truyền vào QuizController
                     return QuizController(text: option,isCorrect: option == currentQuestion.meaning,isSelected: option == selectedAnswer,showAnswer: showAnswer,onPressed: () => checkAnswer(option),
                     );
                   },
@@ -191,12 +190,12 @@ class _QuizScreenState extends State<QuizScreen> {
       selectedAnswer = answer;
       isAnswered = true;
       showAnswer = true;
-      //3.14 Tăng biến score
+      //3.13 Tăng biến score
       if (isCorrect) {
           score++;
       }
     });
-    //3.15 Chuyển câu hỏi tiếp theo sau 2 giây
+    //3.14 Chuyển câu hỏi tiếp theo sau 2 giây
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         if (currentQuestionIndex < questions.length - 1) {
@@ -214,7 +213,7 @@ class _QuizScreenState extends State<QuizScreen> {
               score,
               questions.length
           );
-          //3.17 Hiển thị kết quả bài kiểm tra showResultDialog()
+          //3.16 Hiển thị kết quả bài kiểm tra showResultDialog()
           _showResultDialog();
         }
       }
